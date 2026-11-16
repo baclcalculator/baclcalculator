@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>批量打开网站 · 多网址批量打开器</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: linear-gradient(145deg, #f6f9fc 0%, #e6f0f5 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: rgba(255,255,255,0.8);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: 36px;
+      padding: 32px 28px;
+      max-width: 720px;
+      width: 100%;
+      box-shadow: 0 25px 45px -12px rgba(0, 20, 40, 0.35), 0 4px 12px rgba(0,0,0,0.05);
+      border: 1px solid rgba(255,255,255,0.7);
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: #0b2b3b;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    h1 span {
+      background: #1e6f9f;
+      color: white;
+      font-size: 1.2rem;
+      font-weight: 500;
+      padding: 4px 14px;
+      border-radius: 100px;
+      letter-spacing: 0.3px;
+    }
+    .subhead {
+      color: #2a4c62;
+      margin-bottom: 24px;
+      font-size: 1rem;
+      border-left: 4px solid #1e6f9f;
+      padding-left: 16px;
+      background: rgba(30, 111, 159, 0.06);
+      border-radius: 0 12px 12px 0;
+      line-height: 1.5;
+      padding: 12px 16px;
+    }
+    .subhead kbd {
+      background: #1e2f3a;
+      color: #e0f0fa;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-family: monospace;
+      margin: 0 3px;
+    }
+    .url-area {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    .url-area label {
+      font-weight: 600;
+      color: #1a4055;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.95rem;
+    }
+    .url-area label i {
+      font-style: normal;
+      background: #1e6f9f;
+      color: white;
+      width: 22px;
+      height: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+    textarea {
+      width: 100%;
+      padding: 18px 18px;
+      border-radius: 24px;
+      border: 2px solid #cbdbe6;
+      background: white;
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      resize: vertical;
+      min-height: 180px;
+      transition: all 0.2s;
+      outline: none;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.02);
+    }
+    textarea:focus {
+      border-color: #1e6f9f;
+      box-shadow: 0 0 0 5px rgba(30, 111, 159, 0.15), inset 0 2px 6px rgba(0,0,0,0.02);
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 4px;
+    }
+    .left-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .btn {
+      border: none;
+      background: white;
+      padding: 10px 22px;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.18s;
+      border: 1.5px solid transparent;
+      color: #1a4055;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+      line-height: 1;
+    }
+    .btn i {
+      font-style: normal;
+      font-size: 1.1rem;
+    }
+    .btn-outline {
+      background: transparent;
+      border-color: #b9cfdd;
+      color: #1e4b64;
+    }
+    .btn-outline:hover {
+      background: #e1eff8;
+      border-color: #1e6f9f;
+    }
+    .btn-primary {
+      background: #1e6f9f;
+      color: white;
+      box-shadow: 0 8px 18px -8px rgba(30, 111, 159, 0.6);
+    }
+    .btn-primary:hover {
+      background: #175b83;
+      transform: scale(1.02);
+    }
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+    .btn:disabled {
+      opacity: 0.45;
+      pointer-events: none;
+      filter: grayscale(0.3);
+    }
+    .count-badge {
+      background: #d9eaf5;
+      color: #1a4055;
+      padding: 6px 16px;
+      border-radius: 40px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      white-space: nowrap;
+      border: 1px solid #b8d3e5;
+    }
+    .warning {
+      font-size: 0.82rem;
+      color: #bc4e2e;
+      background: #fff1e8;
+      border-radius: 40px;
+      padding: 8px 18px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid #ffd5c0;
+      margin-top: 16px;
+    }
+    .warning i {
+      font-style: normal;
+      font-size: 1rem;
+    }
+    .footer-note {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 20px;
+      font-size: 0.78rem;
+      color: #5d7f94;
+    }
+    .footer-note code {
+      background: #dfeef9;
+      padding: 2px 8px;
+      border-radius: 30px;
+      color: #0b2b3b;
+    }
+    .icon-emoji {
+      font-size: 1.3rem;
+      line-height: 1;
+    }
+  </style>
+</head>
+<body>
+<div class="card">
+  <h1>
+    🌐 批量打开网站
+    <span>多标签</span>
+  </h1>
+  <div class="subhead">
+    ⚡ 每行一个网址，支持带或不带 <kbd>https://</kbd> · 自动补全协议 · 一键批量打开
+  </div>
+
+  <div class="url-area">
+    <label>
+      <i>📋</i> 网址列表 (每行一个)
+    </label>
+    <textarea id="urlInput" placeholder="例如：&#10;example.com&#10;https://google.com&#10;github.com&#10;https://developer.mozilla.org&#10;wikipedia.org"></textarea>
+  </div>
+
+  <div class="toolbar">
+    <div class="left-actions">
+      <button class="btn btn-outline" id="clearBtn" title="清空输入框">
+        <i>🗑️</i> 清空
+      </button>
+      <button class="btn btn-outline" id="sampleBtn" title="填入示例网址">
+        <i>✨</i> 示例
+      </button>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <span class="count-badge" id="countDisplay">0 个网址</span>
+      <button class="btn btn-primary" id="openBtn">
+        <i>🚀</i> 批量打开
+      </button>
+    </div>
+  </div>
+
+  <!-- 提示区域：当网址数量过多时提醒 -->
+  <div id="warningMessage" style="display: none;" class="warning">
+    <i>⚠️</i> <span id="warningText"></span>
+  </div>
+
+  <div class="footer-note">
+    <span>🔹 使用 <code>window.open</code> 在新标签页打开 · 请允许浏览器弹出窗口</span>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // DOM 元素
+    const urlInput = document.getElementById('urlInput');
+    const openBtn = document.getElementById('openBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const sampleBtn = document.getElementById('sampleBtn');
+    const countDisplay = document.getElementById('countDisplay');
+    const warningMessage = document.getElementById('warningMessage');
+    const warningText = document.getElementById('warningText');
+
+    // 示例网址列表（带协议和不带协议混合）
+    const SAMPLE_URLS = [
+      'https://www.google.com',
+      'github.com',
+      'https://developer.mozilla.org',
+      'wikipedia.org',
+      'https://www.example.com'
+    ];
+
+    // 最大建议数量（超过此数量会警告，但仍可打开）
+    const MAX_SUGGESTED = 12;
+
+    // ---------- 辅助函数 ----------
+    // 从 textarea 读取原始行 (去除首尾空格)
+    function getRawLines() {
+      const text = urlInput.value;
+      // 按行分割，保留空行以便后续过滤
+      return text.split(/\r?\n/);
+    }
+
+    // 过滤有效行: 去除空行 (trim后非空)，以及仅由空白字符组成的行
+    function getValidLines() {
+      return getRawLines().filter(line => line.trim() !== '');
+    }
+
+    // 更新计数显示和警告
+    function updateCountAndWarning() {
+      const validLines = getValidLines();
+      const count = validLines.length;
+      countDisplay.textContent = count + ' 个网址';
+
+      // 根据数量控制警告显示
+      if (count > MAX_SUGGESTED) {
+        warningMessage.style.display = 'flex';
+        warningText.textContent = `当前有 ${count} 个网址，打开较多标签页可能被浏览器拦截，建议分批打开。`;
+      } else {
+        warningMessage.style.display = 'none';
+      }
+
+      // 如果没有有效网址，可以适当禁用按钮 (视觉上，但保留点击后提醒)
+      // 但我们不想完全禁用，因为用户可能想点击时看到提示，所以不禁用
+      // 仅做视觉提示，但保留功能
+    }
+
+    // 将一行文本标准化为完整 URL
+    // - 如果已经包含协议 (http:// 或 https:// 或其他)，保留
+    // - 否则自动加上 https://
+    function normalizeUrl(line) {
+      let trimmed = line.trim();
+      if (trimmed === '') return null;
+
+      // 检测是否已经包含协议 (常见协议: http, https, ftp, file 等；但主要 http/https)
+      // 正则: 以 http:// 或 https:// 或 其他 scheme:// 开头, 简单匹配 ://
+      const hasProtocol = /^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(trimmed);
+      
+      if (hasProtocol) {
+        return trimmed;
+      } else {
+        // 补全 https://
+        return 'https://' + trimmed;
+      }
+    }
+
+    // 获取所有标准化后的网址 (有效)
+    function getNormalizedUrls() {
+      const lines = getValidLines();
+      const urls = [];
+      for (let line of lines) {
+        const normalized = normalizeUrl(line);
+        if (normalized) {
+          urls.push(normalized);
+        }
+      }
+      return urls;
+    }
+
+    // ---------- 核心功能: 批量打开 ----------
+    function batchOpen() {
+      const urls = getNormalizedUrls();
+
+      if (urls.length === 0) {
+        alert('⚠️ 没有有效的网址，请先输入至少一个网址。');
+        return;
+      }
+
+      // 浏览器可能会拦截非用户手势打开的多个窗口，这里已经处于点击事件中，一般没问题
+      // 但打开过多窗口时，浏览器也可能拦截，所以加一个简单提醒
+      if (urls.length > 20) {
+        // 超大数量提示，但仍然尝试打开
+        const confirmOpen = confirm(`你将要打开 ${urls.length} 个标签页，浏览器可能会拦截部分窗口。是否继续？`);
+        if (!confirmOpen) return;
+      }
+
+      // 打开每个网址
+      // 注意：window.open 在用户点击事件中通常不会被拦截；但有些浏览器对非直接点击的调用有限制
+      // 这里是在 click 事件内，安全
+      let openedCount = 0;
+      urls.forEach((url) => {
+        // 使用 _blank 在新标签页打开，并带上 noopener 以避免安全警告 (但 keep 保持兼容)
+        // 注意: window.open 第三个参数可能影响行为，不指定则默认新标签 (若有设置)
+        try {
+          const newWin = window.open(url, '_blank');
+          // 如果 window.open 返回 null, 说明被拦截了
+          if (newWin) {
+            openedCount++;
+            // 可以稍微断开引用，避免内存问题
+            newWin.opener = null; // 安全设置
+          }
+        } catch (e) {
+          console.warn('打开网址失败:', url, e);
+        }
+      });
+
+      // 如果成功打开的较少，可能被拦截，给出反馈
+      if (openedCount < urls.length) {
+        // 延迟一点提示，避免干扰用户
+        setTimeout(() => {
+          alert(`⚠️ 尝试打开了 ${urls.length} 个网址，但只有 ${openedCount} 个被成功打开。\n请检查浏览器是否阻止了弹出窗口，并允许本网站弹出窗口。`);
+        }, 200);
+      } else {
+        // 可以显示一个简单的成功提示，但不打扰用户 (静默处理)
+        // 可选：短暂闪烁按钮，或者不处理。为了体验，不做自动alert (因为很烦)
+        // 但用户可能不知道是否成功，所以我们可以在按钮上做瞬间反馈
+        openBtn.style.transform = 'scale(0.96)';
+        setTimeout(() => { openBtn.style.transform = ''; }, 120);
+      }
+    }
+
+    // ---------- 清空输入框 ----------
+    function clearInput() {
+      urlInput.value = '';
+      updateCountAndWarning();
+      urlInput.focus();
+    }
+
+    // ---------- 填入示例 ----------
+    function fillSample() {
+      // 每行一个，包含带协议和不带协议
+      urlInput.value = SAMPLE_URLS.join('\n');
+      updateCountAndWarning();
+      // 聚焦并滚动到末尾
+      urlInput.focus();
+    }
+
+    // ---------- 绑定事件 ----------
+    // 监听输入变化实时更新计数
+    urlInput.addEventListener('input', updateCountAndWarning);
+
+    // 批量打开按钮
+    openBtn.addEventListener('click', batchOpen);
+
+    // 清空按钮
+    clearBtn.addEventListener('click', clearInput);
+
+    // 示例按钮
+    sampleBtn.addEventListener('click', fillSample);
+
+    // 初始化计数 (防止textarea有默认内容)
+    updateCountAndWarning();
+
+    // 可选：如果textarea原本有占位符内容，不需要处理。但如果有默认值，计数会显示。
+    // 键盘快捷键: Ctrl+Enter 快速打开 (方便用)
+    urlInput.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();  // 阻止换行
+        batchOpen();
+      }
+    });
+
+    // 额外体验：如果用户输入了大量网址，可以自动调整文本域高度但不用管，已有resize
+
+    // 注意：某些浏览器在非用户手势下调用window.open可能会被拦截，但我们的batchOpen是在click事件中调用的
+    // 并且如果用户使用 Ctrl+Enter 也是键盘事件，同样属于用户手势，没问题。
+  })();
+</script>
+</body>
+</html>
