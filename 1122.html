@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>域名去重工具 · 一键清理重复域名</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #f5f7fc 0%, #e9edf5 100%);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 36px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 4px 10px -2px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 1200px;
+            padding: 28px 32px 32px;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            transition: all 0.2s ease;
+        }
+        h1 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 2rem;
+            font-weight: 600;
+            color: #0a1e3c;
+            margin: 0 0 8px 0;
+            letter-spacing: -0.02em;
+        }
+        h1 span {
+            background: #1e5af0;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 500;
+            padding: 6px 16px;
+            border-radius: 30px;
+            letter-spacing: 0.3px;
+            box-shadow: 0 4px 8px rgba(30, 90, 240, 0.25);
+        }
+        .subhead {
+            color: #4a5f7c;
+            margin: 0 0 28px 0;
+            font-size: 1rem;
+            border-left: 4px solid #1e5af0;
+            padding-left: 16px;
+            background: #f0f4fe;
+            border-radius: 0 12px 12px 0;
+            line-height: 1.5;
+            width: fit-content;
+            padding: 8px 20px 8px 16px;
+        }
+        .dual-panel {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .panel {
+            flex: 1 1 300px;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .panel-header label {
+            font-weight: 600;
+            color: #0f2b4f;
+            font-size: 0.95rem;
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .panel-header label i {
+            font-style: normal;
+            font-size: 1.1rem;
+        }
+        .badge {
+            background: #e1e9f8;
+            color: #1a3d7c;
+            border-radius: 50px;
+            padding: 2px 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        textarea {
+            width: 100%;
+            border: 1.5px solid #d0dcea;
+            border-radius: 18px;
+            padding: 16px 18px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+            background: #ffffffdd;
+            backdrop-filter: blur(4px);
+            resize: vertical;
+            min-height: 380px;
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.02);
+            transition: border 0.15s, box-shadow 0.15s;
+            color: #0a1a2e;
+            scrollbar-width: thin;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #1e5af0;
+            box-shadow: 0 0 0 4px rgba(30, 90, 240, 0.15), inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+        textarea::placeholder {
+            color: #9aabc0;
+            font-style: italic;
+            font-weight: 400;
+        }
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+            justify-content: flex-end;
+        }
+        button {
+            background: #ffffff;
+            border: 1.5px solid #cdd9ed;
+            color: #1f3a60;
+            font-weight: 500;
+            padding: 10px 22px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: 0.15s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            letter-spacing: 0.2px;
+            flex: 0 0 auto;
+        }
+        button:hover {
+            background: #f6f9ff;
+            border-color: #98b1d9;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 12px rgba(30, 90, 240, 0.08);
+        }
+        button:active {
+            transform: translateY(1px);
+            box-shadow: none;
+        }
+        button.primary {
+            background: #1e5af0;
+            border-color: #1e5af0;
+            color: white;
+            box-shadow: 0 8px 18px -6px #1e5af0aa;
+        }
+        button.primary:hover {
+            background: #0f4ad0;
+            border-color: #0f4ad0;
+            color: white;
+            box-shadow: 0 10px 22px -8px #1e5af0cc;
+        }
+        button.secondary {
+            background: #eef2f9;
+            border-color: #cbd7ec;
+            color: #1a3d7c;
+        }
+        button.secondary:hover {
+            background: #e2eaf8;
+        }
+        .stats {
+            display: flex;
+            gap: 24px;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px dashed #c7d4e8;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            color: #2e4b74;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #eef3fd;
+            padding: 8px 20px;
+            border-radius: 40px;
+        }
+        .stat-item strong {
+            color: #0a1e3c;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-right: 4px;
+        }
+        .small-note {
+            color: #5e789b;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .error-message {
+            color: #b91c1c;
+            background: #fee9e9;
+            border-radius: 30px;
+            padding: 6px 18px;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid #fbc5c5;
+        }
+        .toast {
+            visibility: hidden;
+            min-width: 180px;
+            background-color: #1a2e4a;
+            color: #fff;
+            text-align: center;
+            border-radius: 40px;
+            padding: 12px 26px;
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+            opacity: 0;
+            transition: opacity 0.2s, visibility 0.2s;
+            z-index: 999;
+            letter-spacing: 0.3px;
+        }
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        @media (max-width: 700px) {
+            .card { padding: 20px; }
+            h1 { font-size: 1.6rem; }
+            textarea { min-height: 250px; }
+            .stats { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>
+        🌐 域名去重工具
+        <span>v1.0</span>
+    </h1>
+    <div class="subhead">
+        ⚡ 智能识别域名格式 · 自动忽略大小写与末尾点号 · 一键去重
+    </div>
+
+    <div class="dual-panel">
+        <!-- 输入面板 -->
+        <div class="panel">
+            <div class="panel-header">
+                <label><i>📥</i> 原始域名列表</label>
+                <span class="badge" id="inputBadge">0 个域名</span>
+            </div>
+            <textarea id="inputArea" placeholder="例如：&#10;example.com&#10;Example.COM&#10;test.org&#10;example.com.&#10;sub.domain.net&#10;another.com&#10;..."></textarea>
+            <div class="toolbar">
+                <button id="pasteBtn" class="secondary" title="从剪贴板粘贴">📋 粘贴</button>
+                <button id="clearInputBtn" class="secondary" title="清空输入">🗑️ 清空</button>
+                <button id="dedupeBtn" class="primary" title="执行去重">✨ 去重</button>
+            </div>
+        </div>
+
+        <!-- 输出面板 -->
+        <div class="panel">
+            <div class="panel-header">
+                <label><i>📤</i> 去重结果</label>
+                <span class="badge" id="outputBadge">0 个域名</span>
+            </div>
+            <textarea id="outputArea" placeholder="去重后的域名将显示在这里..."></textarea>
+            <div class="toolbar">
+                <button id="copyBtn" class="primary" title="复制结果">📋 复制结果</button>
+                <button id="clearOutputBtn" class="secondary" title="清空结果">🗑️ 清空</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部统计和提示 -->
+    <div class="stats">
+        <div class="stat-item">
+            <span>📊 统计</span>
+            <span>原始: <strong id="statOriginal">0</strong></span>
+            <span>去重后: <strong id="statUnique">0</strong></span>
+            <span>移除: <strong id="statRemoved">0</strong></span>
+        </div>
+        <div id="errorContainer" class="error-message" style="display: none;">
+            ⚠️ <span id="errorText"></span>
+        </div>
+        <div class="small-note">
+            ⓘ 支持域名、带协议域名、含端口等
+        </div>
+    </div>
+</div>
+
+<!-- 轻提示 -->
+<div id="toast" class="toast">已复制</div>
+
+<script>
+    (function() {
+        // DOM 元素
+        const inputArea = document.getElementById('inputArea');
+        const outputArea = document.getElementById('outputArea');
+        const inputBadge = document.getElementById('inputBadge');
+        const outputBadge = document.getElementById('outputBadge');
+        const statOriginal = document.getElementById('statOriginal');
+        const statUnique = document.getElementById('statUnique');
+        const statRemoved = document.getElementById('statRemoved');
+        const errorContainer = document.getElementById('errorContainer');
+        const errorText = document.getElementById('errorText');
+        const toastEl = document.getElementById('toast');
+
+        // 按钮
+        const dedupeBtn = document.getElementById('dedupeBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const clearInputBtn = document.getElementById('clearInputBtn');
+        const clearOutputBtn = document.getElementById('clearOutputBtn');
+        const pasteBtn = document.getElementById('pasteBtn');
+
+        // 工具函数：显示/隐藏错误
+        function showError(msg) {
+            if (msg) {
+                errorText.textContent = msg;
+                errorContainer.style.display = 'inline-flex';
+            } else {
+                errorContainer.style.display = 'none';
+                errorText.textContent = '';
+            }
+        }
+
+        // 工具函数：轻提示
+        function showToast(message, isError = false) {
+            toastEl.textContent = message;
+            toastEl.style.backgroundColor = isError ? '#b91c1c' : '#1a2e4a';
+            toastEl.classList.add('show');
+            clearTimeout(window.toastTimer);
+            window.toastTimer = setTimeout(() => {
+                toastEl.classList.remove('show');
+            }, 2000);
+        }
+
+        // 更新统计数值 (根据当前 input / output)
+        function updateStats() {
+            const rawLines = inputArea.value.split(/\r?\n/);
+            // 去掉空行
+            const inputItems = rawLines.map(line => line.trim()).filter(line => line !== '');
+            const outputLines = outputArea.value.split(/\r?\n/).filter(line => line.trim() !== '');
+            const originalCount = inputItems.length;
+            const uniqueCount = outputLines.length;
+            const removedCount = Math.max(0, originalCount - uniqueCount);
+
+            inputBadge.textContent = `${originalCount} 个域名`;
+            outputBadge.textContent = `${uniqueCount} 个域名`;
+            statOriginal.textContent = originalCount;
+            statUnique.textContent = uniqueCount;
+            statRemoved.textContent = removedCount;
+        }
+
+        // 核心去重逻辑（也用于验证）
+        // 返回: { uniqueDomains: [], originalCount, validCount, uniqueCount, error: string|null }
+        function deduplicateDomains(inputText) {
+            // 按行分割，保留原始行内容，但去除首尾空白字符
+            const rawLines = inputText.split(/\r?\n/);
+            const nonEmptyLines = rawLines.map(line => line.trim()).filter(line => line !== '');
+            const originalCount = nonEmptyLines.length;
+
+            if (originalCount === 0) {
+                return { uniqueDomains: [], originalCount: 0, validCount: 0, uniqueCount: 0, error: null };
+            }
+
+            const validDomainSet = new Set();   // 存放标准化后的域名
+            const displayDomainMap = new Map(); // 标准化域名 -> 第一次出现的原始展示字符串(已trim)
+            let invalidLines = 0;
+
+            // 域名标准化及基本验证
+            function normalizeDomain(raw) {
+                if (!raw || typeof raw !== 'string') return null;
+                let s = raw.trim();
+                if (s === '') return null;
+
+                // 1. 如果包含协议，尝试提取主机部分 (简单处理 http:// https:// ftp:// 等)
+                // 但也要小心一些域名本身包含:// 的情况(极少), 但绝大多数域名不带协议
+                let hostPart = s;
+
+                // 匹配类似 scheme:// 的模式, 去掉协议和路径
+                const schemeMatch = s.match(/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\/([^\/?#]+)/);
+                if (schemeMatch) {
+                    hostPart = schemeMatch[1];
+                } else {
+                    // 没有协议，但是可能以 // 开头 (协议相对URL)
+                    if (s.startsWith('//')) {
+                        hostPart = s.substring(2).split(/[/?#]/)[0];
+                    } else {
+                        // 普通情况: 取第一个 / ? # 之前的部分
+                        hostPart = s.split(/[/?#]/)[0];
+                    }
+                }
+
+                // 如果 hostPart 为空，回退到原字符串? 但原字符串可能包含路径，我们再尝试从原始字符串提取合理部分
+                if (!hostPart) {
+                    // 再尝试直接对原字符串做分割
+                    hostPart = s.split(/[/?#]/)[0];
+                    if (!hostPart) return null;
+                }
+
+                // 2. 去除可能存在的端口号 (但保留 IPv6 或纯数字端口)
+                // 但域名通常没有端口。谨慎处理: 如果是 [::1]:8080 这种暂不复杂处理，但用户域名一般无端口
+                // 如果 hostPart 包含 ':' 且不是 IPv6 (不含 '[')，则可以去掉端口
+                if (hostPart.includes(':') && !hostPart.includes('[')) {
+                    // 只保留冒号前的部分（假设端口在最后）
+                    hostPart = hostPart.split(':')[0];
+                }
+                // 如果包含了 IPv6 地址，简单保留原样（为了兼容，但通常不是域名）
+                // 3. 转小写
+                let normalized = hostPart.toLowerCase();
+
+                // 4. 去掉末尾的点号 (根域名表示法，如 example.com.)
+                if (normalized.endsWith('.')) {
+                    normalized = normalized.slice(0, -1);
+                }
+
+                // 5. 如果还有多个末尾点，循环去除 (但一般一个)
+                while (normalized.endsWith('.')) {
+                    normalized = normalized.slice(0, -1);
+                }
+
+                // 6. 基本验证：至少包含一个点，且不以点开头，不以点结尾，且不包含空格等
+                // 放宽一点，但过滤掉明显不合法的行（比如纯数字、纯特殊符号等）
+                // 但为了通用性，允许 localhost 或 IP 地址吗？域名去重工具，可以适当保留一些类似IP的形式
+                // 但为了体验，我们保留包含至少一个 '.' 或为 localhost 或 IP 形式 
+                // 实际上很多内网域名可能没有点, 但工具面向域名，我们允许没有点的，但过滤空内容。
+                // 但是为了避免误报，可以保留合理字符集: 字母数字 点 连字符 下划线(某些内部域名) 冒号(IPv6)等
+                // 检查是否有不合法的字符（空格、控制字符、中文等）? 但有时IDN域名包含中文，让用户自己判断，不做严格限制。
+                // 去掉空白字符
+                normalized = normalized.replace(/\s+/g, ''); // 防止空格混入
+                if (normalized === '') return null;
+
+                // 7. 额外: 如果域名以 '.' 开头(比如 .example.com) 一般无效，但有些特殊后缀，不管了保留？但是容易误判，我们严格一点去掉以点开头的？
+                // 实际域名不会以点开头，但用户可能误输入，我们自动去掉开头的点？还是保留？去重工具尽量保留原语义，但为了保证干净，可以去除开头点。
+                while (normalized.startsWith('.')) {
+                    normalized = normalized.substring(1);
+                }
+                if (normalized === '') return null;
+
+                // 最后，如果包含非法字符？暂不处理太复杂，只要非空字符串即可
+                return normalized;
+            }
+
+            // 遍历每一行
+            for (let line of nonEmptyLines) {
+                // 去除行首尾空格，但保留原始用于显示（去重结果一般显示标准化后的形式，但也可以保留第一次出现的原始格式）
+                const trimmedLine = line.trim();
+                if (trimmedLine === '') continue;
+
+                const normalized = normalizeDomain(trimmedLine);
+                if (normalized === null || normalized === '') {
+                    invalidLines++;
+                    continue; // 跳过无效行
+                }
+
+                // 如果已经存在标准化域名，不重复添加
+                if (!validDomainSet.has(normalized)) {
+                    validDomainSet.add(normalized);
+                    // 存储用于显示的字符串：使用去除空格、转小写、去掉末尾点的形式（标准化后），更方便对比
+                    // 但是为了视觉友好，可以保留一部分原始格式？但可能导致相同域名不同大小写显示不一致，所以显示标准形式。
+                    // 不过可以保留原始输入中第一个出现的样式（但为了统一，展示标准化后的字符串）
+                    // 但为了美观，输出可以是标准化后的字符串（小写+去尾点）
+                    displayDomainMap.set(normalized, normalized);
+                }
+            }
+
+            const uniqueDomains = Array.from(validDomainSet).map(d => displayDomainMap.get(d) || d);
+
+            return {
+                uniqueDomains,
+                originalCount,
+                validCount: validDomainSet.size,   // 有效行去重后数量
+                uniqueCount: validDomainSet.size,
+                error: null
+            };
+        }
+
+        // 执行去重并更新输出区
+        function performDeduplication() {
+            showError('');
+            const inputText = inputArea.value;
+            if (!inputText.trim()) {
+                outputArea.value = '';
+                updateStats();
+                showToast('请输入域名列表', true);
+                return;
+            }
+
+            try {
+                const result = deduplicateDomains(inputText);
+                // 按照标准化后的域名排序输出？为了美观，可以排序，但也可以保持原有顺序。保持第一次出现的顺序比较友好。
+                // 但之前set丢失了顺序，我们重新按输入顺序遍历生成有序去重列表？
+                // 优化：保持出现顺序。修改deduplicateDomains内部使用数组和set组合
+                // 在内部实现保持顺序：使用 Set 记录已存在，并使用数组记录顺序。
+                // 我们快速调整一下函数实现（因为上面已经写好了，重写函数内部，保持顺序）
+                // 直接用一个新的实现: 但为了不改动太多，用新函数
+                const orderedUnique = getOrderedUniqueDomains(inputText);
+                outputArea.value = orderedUnique.join('\n');
+                updateStats();
+                if (orderedUnique.length === 0) {
+                    showToast('没有有效的域名行', true);
+                } else {
+                    showToast(`去重完成，共 ${orderedUnique.length} 个域名`);
+                }
+            } catch (e) {
+                console.error(e);
+                showError('处理时出错，请检查输入');
+                showToast('处理错误', true);
+            }
+        }
+
+        // 保持顺序的去重实现（更符合用户预期）
+        function getOrderedUniqueDomains(inputText) {
+            const rawLines = inputText.split(/\r?\n/);
+            const nonEmptyLines = rawLines.map(line => line.trim()).filter(line => line !== '');
+            const seen = new Set();
+            const orderedResult = [];
+
+            // 复用标准化逻辑
+            function normalizeDomain(raw) {
+                if (!raw || typeof raw !== 'string') return null;
+                let s = raw.trim();
+                if (s === '') return null;
+
+                let hostPart = s;
+                const schemeMatch = s.match(/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\/([^\/?#]+)/);
+                if (schemeMatch) {
+                    hostPart = schemeMatch[1];
+                } else {
+                    if (s.startsWith('//')) {
+                        hostPart = s.substring(2).split(/[/?#]/)[0];
+                    } else {
+                        hostPart = s.split(/[/?#]/)[0];
+                    }
+                }
+                if (!hostPart) {
+                    hostPart = s.split(/[/?#]/)[0];
+                    if (!hostPart) return null;
+                }
+                if (hostPart.includes(':') && !hostPart.includes('[')) {
+                    hostPart = hostPart.split(':')[0];
+                }
+                let normalized = hostPart.toLowerCase();
+                while (normalized.endsWith('.')) {
+                    normalized = normalized.slice(0, -1);
+                }
+                normalized = normalized.replace(/\s+/g, '');
+                while (normalized.startsWith('.')) {
+                    normalized = normalized.substring(1);
+                }
+                if (normalized === '') return null;
+                return normalized;
+            }
+
+            for (let line of nonEmptyLines) {
+                const normalized = normalizeDomain(line);
+                if (normalized === null || normalized === '') continue; // 跳过无效行
+                if (!seen.has(normalized)) {
+                    seen.add(normalized);
+                    orderedResult.push(normalized);   // 输出标准化形式，统一美观
+                }
+            }
+            return orderedResult;
+        }
+
+        // 重新统计（input/输出）
+        function updateStats() {
+            const inputLines = inputArea.value.split(/\r?\n/).map(l => l.trim()).filter(l => l !== '');
+            const outputLines = outputArea.value.split(/\r?\n/).map(l => l.trim()).filter(l => l !== '');
+            const originalCount = inputLines.length;
+            const uniqueCount = outputLines.length;
+            const removedCount = Math.max(0, originalCount - uniqueCount);
+
+            inputBadge.textContent = `${originalCount} 个域名`;
+            outputBadge.textContent = `${uniqueCount} 个域名`;
+            statOriginal.textContent = originalCount;
+            statUnique.textContent = uniqueCount;
+            statRemoved.textContent = removedCount;
+        }
+
+        // 监听输入变化实时更新统计（但输出区不自动去重，仅统计行数）
+        function handleInputChange() {
+            updateStats();
+            // 如果输入区为空，清空错误提示
+            if (!inputArea.value.trim()) {
+                showError('');
+            }
+        }
+
+        // 初始化事件监听
+        function init() {
+            // 输入区变化更新统计
+            inputArea.addEventListener('input', handleInputChange);
+
+            // 输出区变化更新统计
+            outputArea.addEventListener('input', () => {
+                updateStats();
+            });
+
+            // 去重按钮
+            dedupeBtn.addEventListener('click', performDeduplication);
+
+            // 清空输入
+            clearInputBtn.addEventListener('click', () => {
+                inputArea.value = '';
+                outputArea.value = '';  // 清空输入同时清空输出? 通常可以保留输出，但更符合直觉：清空输入也清空输出
+                updateStats();
+                showError('');
+                showToast('已清空');
+            });
+
+            // 清空输出
+            clearOutputBtn.addEventListener('click', () => {
+                outputArea.value = '';
+                updateStats();
+                showToast('输出已清空');
+            });
+
+            // 复制结果
+            copyBtn.addEventListener('click', async () => {
+                const outputText = outputArea.value;
+                if (!outputText.trim()) {
+                    showToast('没有可复制的内容', true);
+                    return;
+                }
+                try {
+                    await navigator.clipboard.writeText(outputText);
+                    showToast('复制成功');
+                } catch (err) {
+                    // 兼容旧浏览器
+                    outputArea.select();
+                    document.execCommand('copy');
+                    showToast('复制成功');
+                }
+            });
+
+            // 粘贴按钮
+            pasteBtn.addEventListener('click', async () => {
+                try {
+                    const text = await navigator.clipboard.readText();
+                    if (text) {
+                        // 追加到现有内容？或者替换？通常点击粘贴希望替换或追加。这里选择替换（如果输入框已有内容，询问? 但简单起见，直接替换）
+                        // 但用户可能想追加，我们就替换吧，并提示。加个更合理的: 如果内容非空, 合并? 还是替换? 用替换
+                        inputArea.value = text;
+                        updateStats();
+                        showToast('已粘贴');
+                    } else {
+                        showToast('剪贴板为空', true);
+                    }
+                } catch (err) {
+                    showToast('无法读取剪贴板，请手动粘贴', true);
+                }
+            });
+
+            // 实时显示错误清除 (如果之前有错误，用户修改了输入，清除错误)
+            inputArea.addEventListener('input', () => {
+                showError('');
+            });
+
+            // 初始化统计
+            updateStats();
+        }
+
+        // 启动
+        init();
+    })();
+</script>
+</body>
+</html>
